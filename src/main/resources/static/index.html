@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Email Assistant</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #667eea, #764ba2);
+      margin: 0;
+      padding: 20px;
+      color: white;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 20px;
+      border-radius: 15px;
+      backdrop-filter: blur(10px);
+    }
+
+    h2 {
+      text-align: center;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border: none;
+      border-radius: 8px;
+    }
+
+    button {
+      background: #ff7a18;
+      border: none;
+      padding: 10px;
+      border-radius: 8px;
+      color: white;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background: #ff4b2b;
+    }
+
+    .email-box {
+      background: white;
+      color: black;
+      padding: 15px;
+      margin-top: 15px;
+      border-radius: 10px;
+    }
+
+    .delete-btn {
+      background: red;
+    }
+
+    .copy-btn {
+      background: green;
+      margin-right: 10px;
+    }
+
+    pre {
+      background: black;
+      padding: 10px;
+      border-radius: 10px;
+      color: lime;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <h2>Smart Email Assistant</h2>
+
+  <label>Topic:</label>
+  <input type="text" id="topic">
+
+  <label>Tone:</label>
+  <select id="tone">
+    <option value="formal">Formal</option>
+    <option value="informal">Informal</option>
+  </select>
+
+  <label>Recipient:</label>
+  <input type="text" id="recipient">
+
+  <button onclick="generateEmail()">Generate Email</button>
+
+  <h3>Result:</h3>
+  <pre id="result"></pre>
+
+  <hr>
+
+  <h2>Email History</h2>
+  <button onclick="loadHistory()">Show History</button>
+
+  <div id="history"></div>
+
+</div>
+
+<script>
+  function generateEmail() {
+      const data = {
+          topic: document.getElementById("topic").value,
+          tone: document.getElementById("tone").value,
+          recipient: document.getElementById("recipient").value
+      };
+
+      fetch("/email/generate", {
+          method: "POST",
+          headers: {
+              "Content-Type": "application/json"
+          },
+          body: JSON.stringify(data)
+      })
+      .then(res => res.json())
+      .then(data => {
+          document.getElementById("result").innerText =
+              "Subject: " + data.subject + "\n\n" + data.body;
+      });
+  }
+
+  async function loadHistory() {
+
+      const res = await fetch("/email/all");
+      const data = await res.json();
+
+      let html = "";
+
+      if (data.length === 0) {
+          html = "<p>No emails found ❗</p>";
+      } else {
+          data.forEach(email => {
+              html += `
+                  <div class="email-box">
+                      <b>Subject:</b> ${email.subject}<br/><br/>
+                      ${email.body}
+                      <br/><br/>
+                      <button class="copy-btn" onclick="copyEmail('${email.subject}', \`${email.body}\`)">Copy</button>
+                      <button class="delete-btn" onclick="deleteEmail(${email.id})">Delete</button>
+                  </div>
+              `;
+          });
+      }
+
+      document.getElementById("history").innerHTML = html;
+  }
+
+  async function deleteEmail(id) {
+      await fetch(`/email/delete/${id}`, {
+          method: "DELETE"
+      });
+
+      alert("Deleted ✅");
+      loadHistory();
+  }
+
+  function copyEmail(subject, body) {
+      const text = "Subject: " + subject + "\n\n" + body;
+      navigator.clipboard.writeText(text);
+      alert("Copied ✅");
+  }
+</script>
+
+</body>
+</html>
