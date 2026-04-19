@@ -41,6 +41,7 @@
       color: white;
       cursor: pointer;
       margin-top: 10px;
+      margin-right: 5px;
     }
 
     button:hover {
@@ -61,7 +62,10 @@
 
     .copy-btn {
       background: green;
-      margin-right: 10px;
+    }
+
+    .gmail-btn {
+      background: #d93025;
     }
 
     pre {
@@ -95,6 +99,9 @@
 
   <h3>Result:</h3>
   <pre id="result"></pre>
+
+  <!-- 🔥 NEW GMAIL BUTTON -->
+  <button class="gmail-btn" onclick="openGmail()">Open in Gmail ✉️</button>
 
   <hr>
 
@@ -132,6 +139,23 @@
       } catch (err) {
           alert("Error generating email ❌");
       }
+  }
+
+  // 🔥 GMAIL OPEN FUNCTION
+  function openGmail() {
+      const text = document.getElementById("result").innerText;
+
+      if (!text) {
+          alert("Generate email first ❗");
+          return;
+      }
+
+      const subject = text.split("\n")[0].replace("Subject: ", "");
+      const body = text.split("\n").slice(2).join("\n");
+
+      const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+      window.open(gmailUrl, "_blank");
   }
 
   async function loadHistory() {
