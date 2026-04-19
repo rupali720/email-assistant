@@ -106,55 +106,67 @@
 </div>
 
 <script>
-  function generateEmail() {
+  const BASE_URL = "https://email-assistant-production-e468.up.railway.app";
+
+  async function generateEmail() {
       const data = {
           topic: document.getElementById("topic").value,
           tone: document.getElementById("tone").value,
           recipient: document.getElementById("recipient").value
       };
 
-      fetch("/email/generate", {
-          method: "POST",
-          headers: {
-              "Content-Type": "application/json"
-          },
-          body: JSON.stringify(data)
-      })
-      .then(res => res.json())
-      .then(data => {
+      try {
+          const res = await fetch(BASE_URL + "/email/generate", {
+              method: "POST",
+              headers: {
+                  "Content-Type": "application/json"
+              },
+              body: JSON.stringify(data)
+          });
+
+          const result = await res.json();
+
           document.getElementById("result").innerText =
-              "Subject: " + data.subject + "\n\n" + data.body;
-      });
+              "Subject: " + result.subject + "\n\n" + result.body;
+
+      } catch (err) {
+          alert("Error generating email ❌");
+      }
   }
 
   async function loadHistory() {
 
-      const res = await fetch("/email/all");
-      const data = await res.json();
+      try {
+          const res = await fetch(BASE_URL + "/email/all");
+          const data = await res.json();
 
-      let html = "";
+          let html = "";
 
-      if (data.length === 0) {
-          html = "<p>No emails found ❗</p>";
-      } else {
-          data.forEach(email => {
-              html += `
-                  <div class="email-box">
-                      <b>Subject:</b> ${email.subject}<br/><br/>
-                      ${email.body}
-                      <br/><br/>
-                      <button class="copy-btn" onclick="copyEmail('${email.subject}', \`${email.body}\`)">Copy</button>
-                      <button class="delete-btn" onclick="deleteEmail(${email.id})">Delete</button>
-                  </div>
-              `;
-          });
+          if (data.length === 0) {
+              html = "<p>No emails found ❗</p>";
+          } else {
+              data.forEach(email => {
+                  html += `
+                      <div class="email-box">
+                          <b>Subject:</b> ${email.subject}<br/><br/>
+                          ${email.body}
+                          <br/><br/>
+                          <button class="copy-btn" onclick="copyEmail('${email.subject}', \`${email.body}\`)">Copy</button>
+                          <button class="delete-btn" onclick="deleteEmail(${email.id})">Delete</button>
+                      </div>
+                  `;
+              });
+          }
+
+          document.getElementById("history").innerHTML = html;
+
+      } catch (err) {
+          alert("Error loading history ❌");
       }
-
-      document.getElementById("history").innerHTML = html;
   }
 
   async function deleteEmail(id) {
-      await fetch(`/email/delete/${id}`, {
+      await fetch(BASE_URL + `/email/delete/${id}`, {
           method: "DELETE"
       });
 

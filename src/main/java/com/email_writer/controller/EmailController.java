@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/email")
 public class EmailController {
@@ -21,23 +22,21 @@ public class EmailController {
     @Autowired
     private EmailRepository emailRepository;
 
-    // Generate Email
     @PostMapping("/generate")
     public EmailResponse generateEmail(@RequestBody EmailRequest request) {
         return emailService.generateEmail(request);
     }
 
-    // 🔥 HISTORY API (IMPORTANT)
     @GetMapping("/all")
     public List<EmailEntity> getAllEmails() {
         return emailRepository.findAll();
     }
 
-    // Test API
     @GetMapping("/test")
     public String test() {
         return "API Working 🚀";
     }
+
     @DeleteMapping("/delete/{id}")
     public String deleteEmail(@PathVariable Long id) {
         emailRepository.deleteById(id);
