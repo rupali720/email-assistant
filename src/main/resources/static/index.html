@@ -66,6 +66,7 @@
 
     .gmail-btn {
       background: #d93025;
+      width: 100%;
     }
 
     pre {
@@ -100,7 +101,7 @@
   <h3>Result:</h3>
   <pre id="result"></pre>
 
-  <!-- 🔥 NEW GMAIL BUTTON -->
+  <!-- 🔥 Gmail Button -->
   <button class="gmail-btn" onclick="openGmail()">Open in Gmail ✉️</button>
 
   <hr>
@@ -141,7 +142,7 @@
       }
   }
 
-  // 🔥 GMAIL OPEN FUNCTION
+  // 🔥 FIXED GMAIL FUNCTION
   function openGmail() {
       const text = document.getElementById("result").innerText;
 
@@ -150,12 +151,18 @@
           return;
       }
 
-      const subject = text.split("\n")[0].replace("Subject: ", "");
-      const body = text.split("\n").slice(2).join("\n");
+      const subject = encodeURIComponent(
+          text.split("\n")[0].replace("Subject: ", "").trim()
+      );
 
-      const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      const body = encodeURIComponent(
+          text.split("\n").slice(2).join("\n").trim()
+      );
 
-      window.open(gmailUrl, "_blank");
+      const url = `https://mail.google.com/mail/?view=cm&fs=1&su=${subject}&body=${body}`;
+
+      // safer redirect (no popup block issue)
+      window.location.href = url;
   }
 
   async function loadHistory() {
