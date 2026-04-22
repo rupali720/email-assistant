@@ -41,11 +41,15 @@
       color: white;
       cursor: pointer;
       margin-top: 10px;
-      margin-right: 5px;
     }
 
     button:hover {
       background: #ff4b2b;
+    }
+
+    .gmail-btn {
+      background: #d93025;
+      width: 100%;
     }
 
     .email-box {
@@ -62,11 +66,6 @@
 
     .copy-btn {
       background: green;
-    }
-
-    .gmail-btn {
-      background: #d93025;
-      width: 100%;
     }
 
     pre {
@@ -93,8 +92,8 @@
     <option value="informal">Informal</option>
   </select>
 
-  <label>Recipient:</label>
-  <input type="text" id="recipient">
+  <label>Recipient Email:</label>
+  <input type="email" id="recipient" placeholder="example@gmail.com">
 
   <button onclick="generateEmail()">Generate Email</button>
 
@@ -142,27 +141,40 @@
       }
   }
 
-  // 🔥 FIXED GMAIL FUNCTION
+  // 🔥 FINAL GMAIL FUNCTION (FULLY FIXED)
   function openGmail() {
+
       const text = document.getElementById("result").innerText;
+      const recipient = document.getElementById("recipient").value;
 
       if (!text) {
           alert("Generate email first ❗");
           return;
       }
 
+      if (!recipient) {
+          alert("Enter recipient email ❗");
+          return;
+      }
+
+      const lines = text.split("\n");
+
       const subject = encodeURIComponent(
-          text.split("\n")[0].replace("Subject: ", "").trim()
+          lines[0].replace("Subject:", "").trim()
       );
 
       const body = encodeURIComponent(
-          text.split("\n").slice(2).join("\n").trim()
+          lines.slice(2).join("\n").trim()
       );
 
-      const url = `https://mail.google.com/mail/?view=cm&fs=1&su=${subject}&body=${body}`;
+      const gmailUrl =
+          "https://mail.google.com/mail/?view=cm&fs=1" +
+          "&to=" + encodeURIComponent(recipient) +
+          "&su=" + subject +
+          "&body=" + body;
 
-      // safer redirect (no popup block issue)
-      window.location.href = url;
+      // redirect (no popup block)
+      window.location.href = gmailUrl;
   }
 
   async function loadHistory() {
